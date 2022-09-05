@@ -1,5 +1,7 @@
 
 import logging
+import settings # для файла settings.py (типа include в си)
+
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 # Updater - коммуникация с сервером (получает/передает сообщения)
 # CommandHandler - обработчик команд
@@ -7,9 +9,20 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 # Filters
 
 
+
+
 # Настройки прокси
-PROXY = {'proxy_url': 'socks5://t2.learn.python.ru:1080',
-    'urllib3_proxy_kwargs': {'username': 'learn', 'password': 'python'}}
+#PROXY = {'proxy_url': 'socks5://t2.learn.python.ru:1080',
+#    'urllib3_proxy_kwargs': {'username': 'learn', 'password': 'python'}}
+
+# Настройки прокси
+PROXY = {'proxy_url': settings.PROXY_URL,
+    'urllib3_proxy_kwargs': {
+        'username': settings.PROXY_USERNAME,
+        'password': settings.PROXY_PASSWORD
+        }       
+}
+
 
 # Записываем все сообщения в bot.log
 logging.basicConfig(filename='bot.log', level=logging.INFO)
@@ -31,7 +44,8 @@ def main():
     print('Hello')
     # Создаем бота и передаем ему ключ для авторизации на серверах Telegram
     #mybot = Updater("5538006894:AAGSXUXLMpYUKQW87dJ0W83gFfu7swoDc6A", use_context=True, request_kwargs=PROXY)
-    mybot = Updater("5538006894:AAGSXUXLMpYUKQW87dJ0W83gFfu7swoDc6A", use_context=True)
+    #mybot = Updater("5538006894:AAGSXUXLMpYUKQW87dJ0W83gFfu7swoDc6A", use_context=True)
+    mybot = Updater(settings.API_KEY, use_context=True)
 
 # Диспетчер нужен, чтобы при наступлении события вызывалась функция:
     dp = mybot.dispatcher
