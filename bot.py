@@ -1,17 +1,17 @@
 import logging
-import settings  # для файла settings.py (типа include в си)
+import settings
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-# Updater - коммуникация с сервером (получает/передает сообщения)
-# CommandHandler - обработчик команд
-# MessageHandler - обработчик текстовых сообщений
-# Filters
 
+'''
+Уровень 2
+Реализуйте в боте команду /wordcount которая считает слова
+в присланной фразе. Например на запрос /wordcount
+Привет как дела бот должен ответить: 3 слова. Не забудьте:
 
-# Настройки прокси
-# PROXY = {'proxy_url': 'socks5://t2.learn.python.ru:1080',
-#    'urllib3_proxy_kwargs': {'username': 'learn', 'password': 'python'}}
-
+Добавить проверки на пустую строку
+Как можно обмануть бота, какие еще проверки нужны?
+'''
 
 # Настройки прокси
 PROXY = {'proxy_url': settings.PROXY_URL,
@@ -28,36 +28,32 @@ logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 # Реакция на команду /start
 def greet_user(update, context):
-    print('Вызван /start:')
-    update.message.reply_text('Привет, пользователь!',
-                              ' Ты вызвал команду /start')
+    update.message.reply_text('Привет! Для продолжения нажми /wordcount')
+
+
+# Реакция на команду /wordcount
+def ask_question(update, context):
+    update.message.reply_text('Напишите предложение:')
 
 
 # Функция, которая будет "отвечать" пользователю
 def talk_to_me(update, context):
-    user_text = update.message.text
-    print(user_text)
-    update.message.reply_text(user_text)
+    if update.message.text != "":
+        user_text_list = update.message.text.split()
+        update.message.reply_text(f'Количество слов в данном предложении:'
+                                  f'{len(user_text_list)}')
+    else:
+        update.message.reply_text('Вы ввели пустую строку')
 
 
-# Функция, кот соединяется с Telegram, "тело" бота
 def main():
-    print('Hello')
-    # Создаем бота и передаем ему ключ для авторизации на серверах Telegram
     mybot = Updater(settings.API_KEY, use_context=True)
 
-# Диспетчер нужен, чтобы при наступлении события вызывалась функция:
     dp = mybot.dispatcher
-    dp.add_handler(CommandHandler("start", greet_user))  # без слэша
-# Хотим реагировать только на текстовые сообщения  - Filters.text
+    dp.add_handler(CommandHandler("start", greet_user))
+    dp.add_handler(CommandHandler("wordcount", ask_question))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
-
-    # Залогируем в файл информацию о старте бота
-    logging.info("Бот стартовал / Bot started")
-
-    # Командуем боту начать ходить в Telegram за сообщениями
     mybot.start_polling()
-    # Запускаем бота, он будет работать, пока мы его не остановим принудительно
     mybot.idle()
 
 
