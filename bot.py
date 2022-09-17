@@ -35,16 +35,27 @@ def greet_user(update, context):
 
 
 # Реакция на команду /wordcount
-def ask_question(update, context):
+def request_a_sentence(update, context):
     update.message.reply_text('Напишите предложение:')
 
 
+def check_if_string_is_ok(list_of_words_from_user):
+    string_is_ok = True
+    for word in list_of_words_from_user:
+        if not word.isalpha():
+            string_is_ok = False
+    return string_is_ok
+
+
 # Функция, которая будет "отвечать" пользователю
-def talk_to_me(update, context):
-    if update.message.text != "":
+def count_and_show_number_of_words(update, context):
+    if update.message.text:
         user_text_list = update.message.text.split()
-        update.message.reply_text(f'Количество слов в данном предложении:'
-                                  f'{len(user_text_list)}')
+        if check_if_string_is_ok(user_text_list):
+            update.message.reply_text(f'Количество слов в данном предложении: '
+                                      f'{len(user_text_list)}')
+        else:
+            update.message.reply_text('Вы ввели плохую строку')
     else:
         update.message.reply_text('Вы ввели пустую строку')
 
@@ -59,9 +70,9 @@ def main():
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler("start", greet_user))
-    dp.add_handler(CommandHandler("wordcount", ask_question))
+    dp.add_handler(CommandHandler("wordcount", request_a_sentence))
     dp.add_handler(CommandHandler("next_full_moon", show_date_of_full_moon))
-    dp.add_handler(MessageHandler(Filters.text, talk_to_me))
+    dp.add_handler(MessageHandler(Filters.text, count_and_show_number_of_words))
     mybot.start_polling()
     mybot.idle()
 
