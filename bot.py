@@ -1,6 +1,7 @@
 import logging
 import settings
-
+from datetime import datetime
+import ephem
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 '''
@@ -28,7 +29,9 @@ logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 # Реакция на команду /start
 def greet_user(update, context):
-    update.message.reply_text('Привет! Для продолжения нажми /wordcount')
+    update.message.reply_text(f'Привет! Выбери из меню:'
+                              f'\n/wordcount - подсчитать количество слов в предложении'
+                              f'\n/next_full_moon - узнать дату ближайшего полнолуния')
 
 
 # Реакция на команду /wordcount
@@ -46,12 +49,18 @@ def talk_to_me(update, context):
         update.message.reply_text('Вы ввели пустую строку')
 
 
+def show_date_of_full_moon(update, context):
+    date_of_full_moon = ephem.next_full_moon(datetime.now())
+    update.message.reply_text(f'Ближайшее полнолуние {date_of_full_moon}')
+
+
 def main():
     mybot = Updater(settings.API_KEY, use_context=True)
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler("start", greet_user))
     dp.add_handler(CommandHandler("wordcount", ask_question))
+    dp.add_handler(CommandHandler("next_full_moon", show_date_of_full_moon))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
     mybot.start_polling()
     mybot.idle()
